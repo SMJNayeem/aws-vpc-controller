@@ -1,0 +1,12 @@
+apiVersion: vpc.poridhi.io/v1
+kind: VPC
+metadata:
+  labels:
+    app.kubernetes.io/name: aws-vpc-controller
+    app.kubernetes.io/managed-by: kustomize
+  name: my-vpc-3
+spec:
+  cidr: "10.0.2.0/16"
+  name: "my-vpc-3"
+  region: "ap-southeast-1"
+  # TODO(user): Add fields here
