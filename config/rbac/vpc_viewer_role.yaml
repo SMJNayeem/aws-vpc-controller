@@ -1,0 +1,23 @@
+# permissions for end users to view vpcs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: aws-vpc-controller
+    app.kubernetes.io/managed-by: kustomize
+  name: vpc-viewer-role
+rules:
+- apiGroups:
+  - vpc.poridhi.io
+  resources:
+  - vpcs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - vpc.poridhi.io
+  resources:
+  - vpcs/status
+  verbs:
+  - get

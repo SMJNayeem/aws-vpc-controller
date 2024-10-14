@@ -1,0 +1,23 @@
+apiVersion: vpc.poridhi.io/v1
+kind: VPC
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"vpc.poridhi.io/v1","kind":"VPC","metadata":{"annotations":{},"labels":{"app.kubernetes.io/managed-by":"kustomize","app.kubernetes.io/name":"aws-vpc-controller"},"name":"my-vpc-3","namespace":"default"},"spec":{"cidr":"10.0.2.0/16","name":"my-vpc-3","region":"ap-southeast-1"}}
+  creationTimestamp: "2024-10-14T17:34:43Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: aws-vpc-controller
+  name: my-vpc-3
+  namespace: default
+  resourceVersion: "17956"
+  uid: fea34e64-25ff-4380-b2bf-5ddf5c937b37
+spec:
+  cidr: 10.0.0.0/16
+  name: my-vpc-3
+  region: ap-southeast-1
+status:
+  error:
+    "NoCredentialProviders: no valid providers in chain. Deprecated.\n\tFor verbose
+    messaging see aws.Config.CredentialsChainVerboseErrors"
