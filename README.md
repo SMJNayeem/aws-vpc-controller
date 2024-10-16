@@ -1,6 +1,6 @@
 # AWS VPC Controller
 
-This project implements a simple Kubernetes controller for managing AWS Virtual Private Clouds (VPCs) using the Operator pattern. It is built using the Kubebuilder framework and allows you to create, update, and delete AWS VPCs directly through Kubernetes Custom Resources.
+This project builds an AWS VPC controller using the Kubernetes Operator pattern. The controller's primary function is to create, update, and delete AWS VPCs directly through Kubernetes Custom Resources (CRs). This documentation provides a detailed overview of how Kubernetes, controllers, Custom Resource Definitions (CRDs), and other technical concepts play a role in the project.
 
 ## Table of Contents
 
@@ -14,36 +14,76 @@ This project implements a simple Kubernetes controller for managing AWS Virtual 
 
 ## Basic Terms
 
-- **Kubernetes**: An open-source container orchestration platform for automating deployment, scaling, and management of containerized applications.
-- **Controller**: In Kubernetes, a controller is a control loop that watches the state of your cluster, then makes or requests changes where needed.
-- **Custom Resource Definition (CRD)**: Allows you to define custom resources in Kubernetes.
-- **Kubebuilder**: A framework for building Kubernetes APIs using custom resource definitions (CRDs).
-- **AWS VPC**: Amazon Virtual Private Cloud, a virtual network dedicated to your AWS account.
-- **Kind**: A tool for running local Kubernetes clusters using Docker containers as "nodes".
+- **Kubernetes and Its Role**: Kubernetes is an open-source container orchestration tool that automates the deployment, scaling, and management of containerized applications. It manages multiple "nodes" (container hosts) within a system known as a cluster, running various applications or microservices. Inside a cluster, objects such as Pods, Services, and Deployments are created and managed.
+
+- **Controller and Control Loop**: In Kubernetes, a controller is a control loop that continuously monitors the state of specific Kubernetes objects and makes changes to ensure the desired state is maintained. For example, a Deployment controller ensures a certain number of Pods are always running. Controllers, typically written in Golang, interact with the Kubernetes API server to manage these objects through API calls.
+
+- **Custom Resources (CR) and Custom Resource Definitions (CRDs)**: Kubernetes extends beyond built-in objects like Pods and Services by allowing users to define custom objects using Custom Resources (CRs). A Custom Resource Definition (CRD) defines the schema and API for these custom objects. CRDs add new types to the Kubernetes API, enabling users to create and manage non-standard resources. In this project, the VPC Custom Resource is a CRD used to manage AWS VPCs directly from Kubernetes.
+
+- **Kubebuilder and the Operator Pattern**: Kubebuilder is a framework for building and managing Kubernetes APIs. It simplifies the process of creating CRDs and controllers. Using the Operator pattern, Kubebuilder creates an operator, a specialized controller that manages custom resources.
+
+    The Operator pattern allows the inclusion of custom logic within Kubernetes clusters, automating the management of complex resources. In this project, the VPC controller acts as an operator that monitors VPC Custom Resources and manages AWS VPCs accordingly.
+
+- ***AWS VPC and Interaction with It**: Amazon Virtual Private Cloud (VPC) is a virtual network that provides a private cloud environment within an AWS account. With VPCs, users can configure subnets, routing tables, internet gateways, and more. The VPC controller interacts with AWS services through the AWS SDK, making API calls to create, update, or delete VPCs based on the defined CRs.
+
 
 ## Architecture Overview
 
 ![Architecture Overview](<images/Screenshot from 2024-10-15 00-30-02.png>)
 
-This diagram illustrates the high-level architecture of the AWS VPC Controller:
+The project deploys the VPC controller within a Kubernetes cluster. It watches over AWS VPC Custom Resources and performs necessary actions. Below is a high-level overview of the process:
 
-1. The AWS VPC Controller runs within a Kubernetes cluster.
-2. It watches for changes to VPC Custom Resources.
-3. When changes are detected, it interacts with AWS using the AWS SDK to create, update, or delete VPCs.
-4. Users interact with the system by creating, updating, or deleting VPC Custom Resources using kubectl.
+**Running the VPC Controller**:
+The VPC controller runs on a node within the Kubernetes cluster, watching for events related to VPC Custom Resources.
+
+**Monitoring Custom Resource Changes**:
+Whenever a VPC Custom Resource is created or updated, the Kubernetes API server notifies the VPC controller about the changes.
+
+**Interaction with AWS SDK**:
+After detecting changes, the controller uses the AWS SDK to make the appropriate API calls to create, update, or delete VPCs.
+
+**Updating the Custom Resource Status**:
+The controller updates the status of the VPC Custom Resource with the current state of the AWS VPC, providing visibility to users.
 
 ## System Flow and Dependencies
 
 ![System Flow and Dependencies](<images/Screenshot from 2024-10-15 00-30-21.png>)
 
-This sequence diagram shows the flow of operations and dependencies in the system:
+1. User Creates or Updates a VPC CR using kubectl:
+The user applies a VPC Custom Resource (CR) using kubectl. This action sends the resource information to the Kubernetes API server.
 
-1. The user applies a VPC Custom Resource (CR) using kubectl.
-2. The Kubernetes API Server receives the CR and notifies the VPC Controller.
-3. The VPC Controller processes the CR and uses the AWS SDK to interact with AWS.
-4. AWS creates or updates the VPC as requested.
-5. The VPC Controller updates the status of the CR with the results from AWS.
-6. The user can see the updated status of their VPC CR.
+2. API Server Notifies the VPC Controller:
+The API server triggers the VPC controller when a change in the VPC Custom Resource is detected.
+
+3. VPC Controller Executes the Task via AWS SDK:
+The controller processes the event and makes the necessary AWS API calls to create, update, or delete a VPC.
+
+4. AWS Responds with Status Information:
+AWS sends back the VPC creation or update status, which is captured by the controller.
+
+5.  Controller Updates the VPC CR's Status:
+Based on the AWS response, the controller updates the status of the VPC Custom Resource in Kubernetes.
+
+6. User Checks Updated Status via kubectl:
+The user can now view the updated status of the VPC Custom Resource using kubectl.
+
+
+## Kubernetes, CRDs, and Controllers: A Deeper Analysis
+
+Kubernetes efficiently manages customized objects, and the system leverages CRDs and controllers to automate deployments. Using a CRD, new types of objects can be defined to meet the specific needs of the application.
+
+**Controller Logic and Event Handling**:
+A controller's primary role is to react to events captured from the Kubernetes API server and apply the appropriate logic. In Kubernetes, controllers follow a reactive pattern, only executing tasks when an event occurs. For example, when a VPC CR is updated, the controller uses the AWS SDK to make necessary changes to the VPC.
+
+**Why the Operator Pattern is Ideal for This Project**:
+
+- Automated Provisioning: The VPC controller can automatically provision AWS VPCs based on the defined custom resources.
+
+- Cluster-Level Scaling: The controller can scale itself within the Kubernetes cluster and handle multiple VPC operations efficiently.
+
+- Versatility: With a custom controller, multiple AWS services can be integrated into the Kubernetes environment.
+
+Thus, the combination of Kubernetes, CRDs, controllers, and the Operator pattern transforms the system into a robust, scalable platform for managing AWS VPCs efficiently.
 
 ## Prerequisites
 
